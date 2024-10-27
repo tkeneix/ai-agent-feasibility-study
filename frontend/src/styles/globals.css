@@ -1,0 +1,10 @@
+/* frontend/src/styles/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .animate-fadeIn {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+}
