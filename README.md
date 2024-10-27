@@ -2,6 +2,10 @@
 
 映画予約システムのAIエージェントフィージビリティスタディ
 
+## デモ画面  
+
+![デモ画面](./doc/img/top.png)
+
 ## 必要条件
 
 - Docker
@@ -28,6 +32,7 @@ docker-compose up --build
 
 サーバーの起動:  
 ```bash
+export OPENAI_API_KEY=sk-xxx
 uvicorn movie_booking.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
