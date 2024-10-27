@@ -2,7 +2,7 @@ from swarm import Agent
 from ..common.logger import log_function
 
 class RecommendationAgent(Agent):
-    def __init__(self):
+    def __init__(self, websocket):
         super().__init__(
             name="Recommendation",
             instructions="""あなたは映画推薦の専門家です。
@@ -34,6 +34,8 @@ class RecommendationAgent(Agent):
                 # self.generate_rankings
             ]
         )
+        self._websocket = websocket
+
     
     @log_function
     # def get_movie_details(self, movie_id: int):
@@ -60,7 +62,7 @@ class RecommendationAgent(Agent):
     def transfer_back_to_planner(self):
         """プランナーエージェントに戻る"""
         from .planner import PlannerAgent
-        return PlannerAgent()
+        return PlannerAgent(self._websocket)
 
     # @log_function
     # def analyze_preferences(self, movies: list, persona: dict, schedule: dict):

@@ -3,11 +3,11 @@ from ..common.logger import log_function
 
 
 class MySelfAgent(Agent):
-    def __init__(self):
+    def __init__(self, websocket):
         super().__init__(
             name="MySelf",
-            instructions="""あなたは映画鑑賞者本人の情報を管理するエージェントです。
-            ユーザーのペルソナ情報やスケジュール情報を提供します。
+            instructions="""あなたは要求をするユーザー自身のペルソナを体現するエージェントです。
+            実装されたfunctionsからユーザーの好みやスケジュール情報を提供します。
             """,
             functions=[
                 self.transfer_back_to_planner,
@@ -16,11 +16,11 @@ class MySelfAgent(Agent):
                 self.get_schedule
             ]
         )
+        self._websocket = websocket
 
     def transfer_back_to_planner(self):
-        """プランナーエージェントに戻る"""
         from .planner import PlannerAgent
-        return PlannerAgent()    
+        return PlannerAgent(self._websocket)    
 
     def get_location(self):
         return {

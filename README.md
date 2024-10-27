@@ -26,6 +26,11 @@ docker-compose up --build
 
 ### バックエンド開発
 
+サーバーの起動:  
+```bash
+uvicorn movie_booking.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
 テストの実行:
 ```bash
 cd backend
@@ -33,6 +38,12 @@ python -m pytest
 ```
 
 ### フロントエンド開発
+
+サーバーの起動:  
+```bash
+export VITE_WS_URL=ws://localhost:8000/ws
+npm run dev
+```
 
 テストの実行:
 ```bash

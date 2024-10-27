@@ -4,13 +4,11 @@ import json
 from ..common.logger import log_async_function
 from ..common.logger import log_function
 
-
-
 class PlannerAgent(Agent):
-    def __init__(self):
+    def __init__(self, websocket):
         super().__init__(
             name="Planner",
-            instructions="""あなたは映画予約システムのコーディネーターです。
+            instructions="""あなたは映画予約システムのプランナーです。
             ユーザーの要望を理解し、適切なエージェントに作業を振り分けます。
             
             利用可能なエージェント：
@@ -37,21 +35,23 @@ class PlannerAgent(Agent):
                 # self.summarize_results
             ]
         )
+        self._websocket = websocket
 
     @log_function
     def transfer_to_booking(self):
         from .booking import BookingAgent
-        return BookingAgent()
+        return BookingAgent(self._websocket)
     
     @log_function    
     def transfer_to_myself(self):
         from .myself import MySelfAgent
-        return MySelfAgent()
+        print("デバッグメッセージ1")
+        return MySelfAgent(self._websocket)
 
     @log_function
     def transfer_to_recommendation(self):
         from .recommendation import RecommendationAgent
-        return RecommendationAgent()
+        return RecommendationAgent(self._websocket)
 
     # @log_function
     # def create_action_plan(self, user_request: str):

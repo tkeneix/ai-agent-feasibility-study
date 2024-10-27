@@ -4,7 +4,7 @@ from ..common.logger import log_function
 
 
 class BookingAgent(Agent):
-    def __init__(self):
+    def __init__(self, websocket):
         super().__init__(
             name="Booking",
             instructions="""あなたは映画チケットの予約専門エージェントです。
@@ -27,11 +27,12 @@ class BookingAgent(Agent):
                 self.get_reservation_details
             ]
         )
+        self._websocket = websocket
     
     def transfer_back_to_planner(self):
         """プランナーエージェントに戻る"""
         from .planner import PlannerAgent
-        return PlannerAgent()
+        return PlannerAgent(self._websocket)
 
     def check_availability(self, theater_id: int, movie_id: int, showtime: str):
         """特定の上映回の空席状況を確認"""
