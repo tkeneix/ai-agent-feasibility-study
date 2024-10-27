@@ -1,0 +1,107 @@
+syntax = "proto3";
+
+package movie_booking;
+
+// メッセージの基本型
+message BaseMessage {
+  string type = 1;
+  string timestamp = 2;
+}
+
+// ユーザーリクエスト
+message UserRequest {
+  string type = 1;
+  string message = 2;
+}
+
+// チャットメッセージ
+message ChatMessage {
+  enum Role {
+    SYSTEM = 0;
+    AGENT = 1;
+    USER = 2;
+  }
+  string type = 1;
+  Role role = 2;
+  string content = 3;
+string agent_name = 4;
+}
+
+// 進捗更新
+message ProgressUpdate {
+  string type = 1;
+  string status = 2;
+  float progress = 3;
+  string detail = 4;
+}
+
+// フレームアクション
+message FrameAction {
+  string type = 1;
+  bool enabled = 2;
+  string label = 3;
+}
+
+// 進捗フレーム
+message ProgressFrame {
+  enum FrameType {
+    THEATERS = 0;
+    RECOMMENDATIONS = 1;
+    SEATS = 2;
+    RESERVATION = 3;
+  }
+  string type = 1;
+  FrameType frame_type = 2;
+  bytes data = 3;  // JSON encoded data
+  FrameAction action = 4;
+}
+
+// システムステータス
+message SystemStatus {
+  enum Status {
+    PROCESSING = 0;
+    READY = 1;
+    ERROR = 2;
+  }
+  string type = 1;
+  Status status = 2;
+  string message = 3;
+}
+
+// 具体的なデータ型
+message Theater {
+  int32 id = 1;
+  string name = 2;
+  float distance = 3;
+  float rating = 4;
+  string address = 5;
+  repeated string screens = 6;
+  string image_url = 7;
+}
+
+message MovieRecommendation {
+  int32 movie_id = 1;
+  string title = 2;
+  float score = 3;
+  string poster_url = 4;
+  repeated string genres = 5;
+  int32 duration = 6;
+  string rating = 7;
+  repeated string schedule = 8;
+  repeated string match_reasons = 9;
+}
+
+// サービス定義
+service MovieBookingService {
+  rpc ProcessUserRequest(UserRequest) returns (stream ServerMessage);
+}
+
+// Union型の代わりとなるメッセージ
+message ServerMessage {
+  oneof message {
+    ChatMessage chat = 1;
+    ProgressUpdate progress = 2;
+    ProgressFrame frame = 3;
+    SystemStatus status = 4;
+  }
+}
