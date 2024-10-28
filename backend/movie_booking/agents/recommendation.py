@@ -7,38 +7,20 @@ class RecommendationAgent(Agent):
             name="Recommendation",
             instructions="""あなたは映画推薦の専門家です。
             ユーザーの好みやスケジュールを考慮して、最適な映画を推薦してください。
-            
-            評価基準:
-            1. ジャンル適合度 (30点)
-            - 好みのジャンルとの一致度
-            - 過去の視聴履歴との関連性
-            
-            2. スケジュール適合度 (25点)
-            - 上映時間とスケジュールの整合性
-            - 映画の長さと空き時間の関係
-            
-            3. 映画特性 (25点)
-            - 年齢制限との適合性
-            - IMAX/3D等の上映形式の好み
-            - 字幕/吹替の好み
-            
-            4. その他要因 (20点)
-            - 評価スコア
-            - 混雑度
-            - 座席の空き状況
+
+            1. generate_rankings(好みを踏まえた映画の推薦ランキング情報を生成する) 
             """,
             functions=[
                 self.transfer_back_to_planner,
                 # self.get_movie_details,
-                # self.analyze_preferences,
-                # self.generate_rankings
+                self.generate_rankings
             ]
         )
         self._websocket = websocket
 
     
-    @log_function
-    # def get_movie_details(self, movie_id: int):
+    # @log_function
+    # def get_movie_details(self):
     #     movies_data = {
     #         1: {
     #             "id": 1,
@@ -55,7 +37,7 @@ class RecommendationAgent(Agent):
     #     }
     #     return {
     #         "status": "success",
-    #         "data": movies_data.get(movie_id, {"error": "Movie not found"})
+    #         "data": movies_data.get(1, {"error": "Movie not found"})
     #     }
 
     @log_function
@@ -64,7 +46,7 @@ class RecommendationAgent(Agent):
         from .planner import PlannerAgent
         return PlannerAgent(self._websocket)
 
-    # @log_function
+    #@log_function
     # def analyze_preferences(self, movies: list, persona: dict, schedule: dict):
     #     analysis_result = {
     #         "movie_scores": [
@@ -91,21 +73,21 @@ class RecommendationAgent(Agent):
     #         "data": analysis_result
     #     }
     
-    #@log_function
-    # def generate_rankings(self, analysis_result: dict, criteria: list = None):
-    #     return {
-    #         "status": "success",
-    #         "data": {
-    #             "rankings": [
-    #                 {
-    #                     "rank": 1,
-    #                     "movie_id": 1,
-    #                     "title": "DUNE：パート2",
-    #                     "score": 92,
-    #                     "recommended_showtime": "21:00",
-    #                     "recommendation_reason": "ジャンル適合性とスケジュール適合性が高く、IMAXでの視聴も可能です。"
-    #                 }
-    #             ],
-    #             "ranking_criteria": criteria or ["総合スコア"]
-    #         }
-    #     }
+    @log_function
+    def generate_rankings(self):
+        return {
+            "status": "success",
+            "data": {
+                "rankings": [
+                    {
+                        "rank": 1,
+                        "movie_id": 1,
+                        "title": "DUNE：パート2",
+                        "score": 92,
+                        "recommended_showtime": "21:00",
+                        "recommendation_reason": "ジャンル適合性とスケジュール適合性が高く、IMAXでの視聴も可能です。"
+                    }
+                ],
+                "ranking_criteria": ["総合スコア"]
+            }
+        }

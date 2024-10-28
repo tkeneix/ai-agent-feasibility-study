@@ -30,6 +30,8 @@ const MovieBookingApp: React.FC = () => {
     const [isConnected, setIsConnected] = useState(false);
     const ws = useRef<WebSocket | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    // System Logs用のref追加
+    const logsEndRef = useRef<HTMLDivElement>(null);
     const reconnectInterval = useRef<number | null>(null);
 
     // WebSocket接続を管理する関数
@@ -66,10 +68,12 @@ const MovieBookingApp: React.FC = () => {
                             break;
 
                         case 'tool':
-                            setLogMessages(prev => [
-                                ...prev,
-                                `Tool call: ${JSON.stringify(message.data, null, 2)}`
-                            ]);
+                            if (message.data) {
+                                setLogMessages(prev => [
+                                    ...prev,
+                                    `Tool call: ${JSON.stringify(message.data, null, 2)}`
+                                ]);
+                            }
                             break;
 
                         case 'complete':
@@ -102,7 +106,7 @@ const MovieBookingApp: React.FC = () => {
                             }]);
                             //setCurrentStream('');
                             setIsProcessing(false);
-                            setLogMessages(prev => [...prev, `エラー: ${message.message}`]);
+                            setLogMessages(prev => [...prev, `エラー: ${JSON.stringify(message.message, null, 2)}`]);
                             break;
                     }
                 } catch (error) {
@@ -115,7 +119,7 @@ const MovieBookingApp: React.FC = () => {
             websocket.onerror = error => {
                 console.error('WebSocket error:', error);
                 setIsConnected(false);
-                setLogMessages(prev => [...prev, `WebSocketエラー: ${error}`]);
+                setLogMessages(prev => [...prev, `WebSocketエラー: ${JSON.stringify(error, null, 2)}`]);
                 setIsProcessing(false);
             };
 
@@ -160,6 +164,12 @@ const MovieBookingApp: React.FC = () => {
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [chatHistory, currentStream]);
+
+    // ログメッセージ用のスクロール効果を追加
+    useEffect(() => {
+        logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [logMessages]);
+
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -221,17 +231,24 @@ const MovieBookingApp: React.FC = () => {
 
     // 接続状態を表示するコンポーネント
     const ConnectionStatus: React.FC = () => (
-        <div className={`fixed top-2 right-2 px-3 py-1 rounded-full text-sm ${isConnected ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+        <div className={`flex items-center justify-center px-2 py-1 rounded-full text-xs ${isConnected ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
             }`}>
+            <div className={`w-2 h-2 rounded-full mr-1 ${isConnected ? 'bg-green-200' : 'bg-red-200'
+                }`} />
             {isConnected ? '接続中' : '未接続'}
         </div>
     );
 
     return (
-        <div className="flex h-screen bg-gray-100 relative">
-            <ConnectionStatus />
+        <div className="flex h-screen bg-gray-100">
             {/* チャットUI - 左側50% */}
-            <div className="w-1/2 h-full border-r border-gray-200 bg-white flex flex-col">
+            <div className="w-1/2 h-full bg-white flex flex-col border-r border-gray-200">
+                {/* ヘッダー */}
+                <div className="h-14 px-4 bg-white border-b border-gray-200 flex items-center">
+                    <ConnectionStatus />
+                    <h1 className="text-xl font-bold flex-grow text-center">Chat</h1>
+                </div>
+
                 {/* チャット履歴 */}
                 <div className="flex-1 overflow-y-auto p-4">
                     <div className="space-y-2">
@@ -257,7 +274,7 @@ const MovieBookingApp: React.FC = () => {
                 </div>
 
                 {/* 入力フォーム */}
-                <div className="p-4 border-t border-gray-200">
+                <div className="h-20 p-4 border-t border-gray-200">
                     <form onSubmit={handleSubmit} className="flex space-x-2">
                         <Input
                             value={userInput}
@@ -283,22 +300,29 @@ const MovieBookingApp: React.FC = () => {
             </div>
 
             {/* ログビュー - 右側50% */}
-            <div className="w-1/2 h-full bg-white overflow-y-auto p-4">
-                <div className="space-y-2">
-                    <h2 className="text-lg font-bold sticky top-0 bg-white pb-2 border-b">
-                        System Logs
-                    </h2>
-                    {logMessages.map((log, index) => (
-                        <div
-                            key={index}
-                            className="text-sm text-gray-600 border-b border-gray-100 py-1"
-                        >
-                            <span className="text-gray-400 mr-2">
-                                {new Date().toLocaleTimeString()}
-                            </span>
-                            {log}
-                        </div>
-                    ))}
+            <div className="w-1/2 h-full bg-white flex flex-col">
+                {/* ヘッダー */}
+                <div className="h-14 px-4 bg-white border-b border-gray-200 flex items-center justify-center">
+                    <h2 className="text-xl font-bold">System Logs</h2>
+                </div>
+
+                {/* ログ内容 */}
+                <div className="flex-1 overflow-y-auto p-4">
+                    <div className="space-y-2">
+                        {logMessages.map((log, index) => (
+                            <div
+                                key={index}
+                                className="text-sm text-gray-600 border-b border-gray-100 py-1"
+                            >
+                                <span className="text-gray-400 mr-2">
+                                    {new Date().toLocaleTimeString()}
+                                </span>
+                                {log}
+                            </div>
+                        ))}
+                        {/* スクロール用の要素を追加 */}
+                        <div ref={logsEndRef} />
+                    </div>
                 </div>
             </div>
         </div>
